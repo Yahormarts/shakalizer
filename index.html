@@ -159,7 +159,7 @@ footer{ text-align:center; opacity:.5; margin-top:24px; font-size:11px; }
     <button class="go" id="goImg" data-i18n="imgGoBtn">ШАКАЛИЗИРОВАТЬ</button>
     <canvas id="canvas"></canvas>
     <div class="badge" id="badge"></div>
-    <button class="go download" id="downloadImg" data-i18n="downloadBtn" style="display:none;">⬇ Скачать PNG</button>
+    <button class="go download" id="downloadImg" data-i18n="downloadBtn">⬇ Скачать PNG</button>
     <div class="hint" data-i18n="imgHint">Результат сразу можно использовать как фон на вкладке «Мем-текст»</div>
   </div>
 </div>
@@ -195,7 +195,7 @@ footer{ text-align:center; opacity:.5; margin-top:24px; font-size:11px; }
     <button class="go" id="goMeme" data-i18n="memeGoBtn">СГЕНЕРИРОВАТЬ</button>
     <canvas id="memeCanvas" class="checkerboard"></canvas>
     <div class="badge" id="badgeMeme"></div>
-    <button class="go download" id="downloadMeme" data-i18n="downloadBtn" style="display:none;">⬇ Скачать PNG</button>
+    <button class="go download" id="downloadMeme" data-i18n="downloadBtn">⬇ Скачать PNG</button>
     <div class="hint" data-i18n="memeHint">Сохраняй правым кликом → «Сохранить изображение как…» (PNG сохранит прозрачность)</div>
   </div>
 </div>
@@ -341,25 +341,33 @@ async function degradeCanvas(canvas, level, preserveAlpha){
   ctx.drawImage(finalImg, 0,0, W, H);
 }
 
-// ---- downloads capability ----
+// ---- downloads: use claude.ai's native save when running inside an artifact,
+// otherwise fall back to a normal browser download (works on any hosting) ----
 let downloadsNS = null;
 (async ()=>{
   if(!window.claude || typeof window.claude.use !== 'function') return;
-  try{
-    downloadsNS = await window.claude.use('downloads');
-  }catch(e){ downloadsNS = null; }
-  if(downloadsNS){
-    document.getElementById('downloadImg').style.display = 'block';
-    document.getElementById('downloadMeme').style.display = 'block';
-  }
+  try{ downloadsNS = await window.claude.use('downloads'); }
+  catch(e){ downloadsNS = null; }
 })();
 
+function browserDownload(blob, filename){
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(()=> URL.revokeObjectURL(url), 2000);
+}
+
 async function saveCanvas(canvas, filename){
-  if(!downloadsNS) return;
   canvas.toBlob(async (blob)=>{
     if(!blob) return;
-    try{ await downloadsNS.save({ filename, data: blob }); }
-    catch(err){ /* declined or unavailable — nothing to do */ }
+    if(downloadsNS){
+      try{ await downloadsNS.save({ filename, data: blob }); return; }
+      catch(err){ /* declined, or claude.ai save unavailable here — fall through */ }
+    }
+    browserDownload(blob, filename);
   }, 'image/png');
 }
 
