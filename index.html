@@ -2,16 +2,22 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>ШАКАЛІЗАТАР / ШАКАЛИЗАТОР</title>
 <style>
-:root{ --bg:#1a0d0d; --card:#2a1414; --gold:#d4af37; --red:#a11313; --text:#f0e4c8; }
+:root{ --bg:#1a0d0d; --card:#2a1414; --gold:#d4af37; --red:#a11313; --text:#f0e4c8;
+  box-sizing:border-box;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+html{ scroll-padding-top: env(safe-area-inset-top, 0px); }
 @media (prefers-color-scheme: light){
   :root:not([data-theme="dark"]){ --bg:#f5efe0; --card:#fff; --gold:#a1750f; --red:#a11313; --text:#2a1414; }
 }
 :root[data-theme="dark"]{ --bg:#1a0d0d; --card:#2a1414; --gold:#d4af37; --red:#a11313; --text:#f0e4c8; }
 *{box-sizing:border-box}
 body{ margin:0; background:var(--bg); color:var(--text); font-family:'Georgia','Times New Roman',serif;
-  min-height:100vh; padding:20px; overflow-x:hidden;
+  min-height:100%; padding:20px; overflow-x:hidden;
   animation:bodyFade .6s ease; }
 @keyframes bodyFade{ from{opacity:0; transform:translateY(8px);} to{opacity:1; transform:translateY(0);} }
 
@@ -23,23 +29,23 @@ body{ margin:0; background:var(--bg); color:var(--text); font-family:'Georgia','
 body > *:not(.orb){ position:relative; z-index:1; }
 
 h1{ text-align:center; color:var(--gold); letter-spacing:2px; margin-bottom:4px;
-  font-size:clamp(22px,5vw,36px); animation:titleGlow 3s ease-in-out infinite alternate; }
+  font-size:clamp(20px,6vw,36px); animation:titleGlow 3s ease-in-out infinite alternate; }
 @keyframes titleGlow{
   from{ text-shadow:0 0 12px rgba(212,175,55,.4); }
   to{ text-shadow:0 0 22px rgba(212,175,55,.85), 0 0 8px rgba(161,19,19,.6); }
 }
-.sub{ text-align:center; opacity:.7; margin-bottom:16px; font-style:italic; }
+.sub{ text-align:center; opacity:.7; margin-bottom:16px; font-style:italic; font-size:14px; }
 
-.langrow{ display:flex; justify-content:center; gap:6px; margin-bottom:14px; flex-wrap:wrap; }
+.langrow{ display:flex; justify-content:center; gap:5px; margin-bottom:14px; flex-wrap:wrap; }
 .langbtn{ background:var(--card); border:1px solid var(--gold); color:var(--gold);
-  padding:5px 10px; border-radius:5px; cursor:pointer; font-size:12px; font-weight:bold;
+  padding:5px 9px; border-radius:5px; cursor:pointer; font-size:11px; font-weight:bold;
   transition:transform .15s, box-shadow .15s; }
 .langbtn:hover{ transform:translateY(-2px); box-shadow:0 3px 8px rgba(0,0,0,.3); }
 .langbtn.active{ background:var(--gold); color:var(--bg); }
 
-.tabs{ display:flex; justify-content:center; gap:8px; margin-bottom:20px; flex-wrap:wrap; }
+.tabs{ display:flex; justify-content:center; gap:6px; margin-bottom:18px; flex-wrap:wrap; }
 .tab{ background:var(--card); border:2px solid var(--gold); color:var(--gold);
-  padding:8px 18px; border-radius:6px; cursor:pointer; font-weight:bold;
+  padding:7px 14px; border-radius:6px; cursor:pointer; font-weight:bold; font-size:14px;
   transition:transform .15s, box-shadow .15s; }
 .tab:hover{ transform:translateY(-2px); box-shadow:0 4px 10px rgba(0,0,0,.35); }
 .tab.active{ background:var(--gold); color:var(--bg); }
@@ -48,7 +54,7 @@ h1{ text-align:center; color:var(--gold); letter-spacing:2px; margin-bottom:4px;
 .panel.active{ display:block; animation:panelFade .35s ease; }
 @keyframes panelFade{ from{opacity:0; transform:translateY(8px);} to{opacity:1; transform:translateY(0);} }
 
-.card{ background:var(--card); border:2px solid var(--red); border-radius:10px; padding:20px;
+.card{ background:var(--card); border:2px solid var(--red); border-radius:10px; padding:16px;
   box-shadow:0 0 20px rgba(0,0,0,.3); transition:box-shadow .3s; }
 .card:hover{ box-shadow:0 0 28px rgba(212,175,55,.15), 0 0 20px rgba(0,0,0,.3); }
 
@@ -58,30 +64,30 @@ h1{ text-align:center; color:var(--gold); letter-spacing:2px; margin-bottom:4px;
     linear-gradient(45deg,transparent 75%,#666 75%),linear-gradient(-45deg,transparent 75%,#666 75%);
   background-size:20px 20px; background-position:0 0,0 10px,10px -10px,-10px 0; background-color:#999;
 }
-input[type=file]{ color:var(--text); margin:6px 0 12px; max-width:100%; }
+input[type=file]{ color:var(--text); margin:6px 0 12px; max-width:100%; font-size:14px; }
 input[type=text]{ width:100%; background:var(--bg); color:var(--text); border:1px solid var(--gold);
-  border-radius:6px; padding:8px 10px; font-size:15px; margin-bottom:10px; font-family:inherit;
+  border-radius:6px; padding:10px 10px; font-size:16px; margin-bottom:10px; font-family:inherit;
   transition:box-shadow .2s; }
 input[type=text]:focus{ outline:none; box-shadow:0 0 0 2px rgba(212,175,55,.4); }
 select{ width:100%; background:var(--bg); color:var(--text); border:1px solid var(--gold);
-  border-radius:6px; padding:8px 10px; font-size:14px; margin-bottom:10px; font-family:inherit; }
-label{ font-weight:bold; color:var(--gold); }
-label.opt{ font-weight:normal; color:var(--text); display:inline-flex; align-items:center; gap:5px; cursor:pointer; }
+  border-radius:6px; padding:10px 10px; font-size:14px; margin-bottom:10px; font-family:inherit; }
+label{ font-weight:bold; color:var(--gold); font-size:14px; }
+label.opt{ font-weight:normal; color:var(--text); display:inline-flex; align-items:center; gap:5px; cursor:pointer; font-size:14px; }
 
 input[type=range]{ width:100%; margin:10px 0 6px; -webkit-appearance:none; height:6px; border-radius:3px;
   background:linear-gradient(to right, var(--red), var(--gold)); outline:none; }
-input[type=range]::-webkit-slider-thumb{ -webkit-appearance:none; width:18px; height:18px; border-radius:50%;
+input[type=range]::-webkit-slider-thumb{ -webkit-appearance:none; width:20px; height:20px; border-radius:50%;
   background:var(--gold); border:2px solid var(--red); cursor:pointer; box-shadow:0 0 6px rgba(212,175,55,.6);
   transition:transform .15s; }
 input[type=range]::-webkit-slider-thumb:hover{ transform:scale(1.2); }
-input[type=range]::-moz-range-thumb{ width:18px; height:18px; border-radius:50%; background:var(--gold);
+input[type=range]::-moz-range-thumb{ width:20px; height:20px; border-radius:50%; background:var(--gold);
   border:2px solid var(--red); cursor:pointer; }
 
 input[type=color]{ vertical-align:middle; width:44px; height:32px; border:none; background:none; margin:4px 0 10px; }
-.radiogroup{ display:flex; flex-wrap:wrap; gap:12px; margin-bottom:10px; }
+.radiogroup{ display:flex; flex-wrap:wrap; gap:10px 14px; margin-bottom:10px; }
 
 button.go{ display:block; width:100%; background:var(--red); color:#fff; border:none;
-  padding:12px; border-radius:8px; font-size:16px; font-weight:bold; cursor:pointer;
+  padding:13px; border-radius:8px; font-size:16px; font-weight:bold; cursor:pointer;
   margin-top:10px; letter-spacing:1px; position:relative; overflow:hidden;
   transition:transform .12s, filter .15s; }
 button.go::before{ content:''; position:absolute; top:0; left:-75%; width:45%; height:100%;
@@ -95,20 +101,32 @@ button.go.loading::after{ content:''; position:absolute; right:14px; top:50%; wi
   margin-top:-8px; border:2px solid rgba(255,255,255,.4); border-top-color:#fff; border-radius:50%;
   animation:spin .7s linear infinite; }
 @keyframes spin{ to{ transform:rotate(360deg); } }
+button.download{ background:var(--gold); color:var(--bg); }
 
-canvas{ max-width:100%; border-radius:6px; margin-top:14px; display:block; }
+canvas{ max-width:100%; height:auto; border-radius:6px; margin-top:14px; display:block; }
 canvas.popIn{ animation:popIn .45s ease; }
 @keyframes popIn{ from{ transform:scale(.92); opacity:.3; } to{ transform:scale(1); opacity:1; } }
 
-.hint{ font-size:13px; opacity:.65; text-align:center; margin-top:8px; }
-.badge{ text-align:center; font-size:22px; margin-top:6px; letter-spacing:3px; min-height:28px; }
+.hint{ font-size:12px; opacity:.65; text-align:center; margin-top:8px; }
+.badge{ text-align:center; font-size:20px; margin-top:6px; letter-spacing:2px; min-height:26px; word-break:break-word; }
 .badge.popIn{ animation:badgePop .5s ease; }
 @keyframes badgePop{
   0%{ transform:scale(.5) rotate(-8deg); opacity:0; }
   60%{ transform:scale(1.12) rotate(4deg); opacity:1; }
   100%{ transform:scale(1) rotate(0deg); }
 }
-footer{ text-align:center; opacity:.5; margin-top:24px; font-size:12px; }
+footer{ text-align:center; opacity:.5; margin-top:24px; font-size:11px; }
+
+@media (max-width:480px){
+  body{ padding:12px; }
+  h1{ letter-spacing:1px; }
+  .sub{ font-size:12px; margin-bottom:12px; }
+  .card{ padding:12px; }
+  .tab{ padding:6px 10px; font-size:13px; }
+  .langbtn{ padding:4px 7px; font-size:10px; }
+  button.go{ font-size:15px; padding:12px; }
+  .orb1, .orb2{ display:none; }
+}
 </style>
 </head>
 <body>
@@ -141,6 +159,7 @@ footer{ text-align:center; opacity:.5; margin-top:24px; font-size:12px; }
     <button class="go" id="goImg" data-i18n="imgGoBtn">ШАКАЛИЗИРОВАТЬ</button>
     <canvas id="canvas"></canvas>
     <div class="badge" id="badge"></div>
+    <button class="go download" id="downloadImg" data-i18n="downloadBtn" style="display:none;">⬇ Скачать PNG</button>
     <div class="hint" data-i18n="imgHint">Результат сразу можно использовать как фон на вкладке «Мем-текст»</div>
   </div>
 </div>
@@ -176,6 +195,7 @@ footer{ text-align:center; opacity:.5; margin-top:24px; font-size:12px; }
     <button class="go" id="goMeme" data-i18n="memeGoBtn">СГЕНЕРИРОВАТЬ</button>
     <canvas id="memeCanvas" class="checkerboard"></canvas>
     <div class="badge" id="badgeMeme"></div>
+    <button class="go download" id="downloadMeme" data-i18n="downloadBtn" style="display:none;">⬇ Скачать PNG</button>
     <div class="hint" data-i18n="memeHint">Сохраняй правым кликом → «Сохранить изображение как…» (PNG сохранит прозрачность)</div>
   </div>
 </div>
@@ -197,7 +217,7 @@ const translations = {
     memeHint:"Сохраняй правым кликом → «Сохранить изображение как…» (PNG сохранит прозрачность)",
     memeBadgeNone:"без доп. шакализации", footer:"сделано не по шаблону, а с душой шакала",
     alertNoImg:"сначала загрузи картинку, шакал", alertNoBgUpload:"загрузи картинку для фона",
-    alertNoFromTab:"сначала зашакаль картинку на вкладке «Картинки»" },
+    alertNoFromTab:"сначала зашакаль картинку на вкладке «Картинки»", downloadBtn:"⬇ Скачать PNG" },
   be: { title:"ШАКАЛІЗАТАР", subtitle:"ордэн «за сціскaнне джыпега» выдаецца аўтаматычна",
     tabImg:"🖼 Малюнкі", tabMeme:"📝 Мем-тэкст",
     imgUploadLabel:"Загрузі малюнак", imgLevelLabel:"Ступень сціскання па шкале шакалаў:",
@@ -211,7 +231,7 @@ const translations = {
     memeHint:"Захоўвай правай кнопкай → «Захаваць малюнак як…» (PNG захавае празрыстасць)",
     memeBadgeNone:"без дадатковай шакалізацыі", footer:"зроблена не па шаблоне, а з душой шакала",
     alertNoImg:"спачатку загрузі малюнак, шакал", alertNoBgUpload:"загрузі малюнак для фону",
-    alertNoFromTab:"спачатку зашакаль малюнак на ўкладцы «Малюнкі»" },
+    alertNoFromTab:"спачатку зашакаль малюнак на ўкладцы «Малюнкі»", downloadBtn:"⬇ Спампаваць PNG" },
   uk: { title:"ШАКАЛІЗАТОР", subtitle:"орден «за стиснення джипега» видається автоматично",
     tabImg:"🖼 Картинки", tabMeme:"📝 Мем-текст",
     imgUploadLabel:"Завантаж картинку", imgLevelLabel:"Ступінь стиснення за шкалою шакалів:",
@@ -225,7 +245,7 @@ const translations = {
     memeHint:"Зберігай правою кнопкою → «Зберегти зображення як…» (PNG збереже прозорість)",
     memeBadgeNone:"без додаткової шакалізації", footer:"зроблено не за шаблоном, а з душею шакала",
     alertNoImg:"спочатку завантаж картинку, шакал", alertNoBgUpload:"завантаж картинку для фону",
-    alertNoFromTab:"спочатку зашакаль картинку у вкладці «Картинки»" },
+    alertNoFromTab:"спочатку зашакаль картинку у вкладці «Картинки»", downloadBtn:"⬇ Завантажити PNG" },
   pl: { title:"SZAKALIZATOR", subtitle:"order „za skompresowanie jpega” przyznawany automatycznie",
     tabImg:"🖼 Obrazki", tabMeme:"📝 Mem-tekst",
     imgUploadLabel:"Wgraj obrazek", imgLevelLabel:"Poziom kompresji w skali jebanych szakali:",
@@ -239,7 +259,7 @@ const translations = {
     memeHint:"Zapisuj prawym przyciskiem → „Zapisz obraz jako…” (PNG zachowa przezroczystość)",
     memeBadgeNone:"bez dodatkowej szakalizacji", footer:"zrobione nie z szablonu, a z duszą szakala",
     alertNoImg:"najpierw wgraj obrazek, szakalu", alertNoBgUpload:"wgraj obrazek jako tło",
-    alertNoFromTab:"najpierw zaszakaluj obrazek w zakładce „Obrazki”" },
+    alertNoFromTab:"najpierw zaszakaluj obrazek w zakładce „Obrazki”", downloadBtn:"⬇ Pobierz PNG" },
   en: { title:"JACKALIZER", subtitle:"the “for jpeg compression” order is awarded automatically",
     tabImg:"🖼 Images", tabMeme:"📝 Meme text",
     imgUploadLabel:"Upload an image", imgLevelLabel:"Compression level on the damn jackal scale:",
@@ -253,7 +273,7 @@ const translations = {
     memeHint:"Save via right click → “Save image as…” (PNG keeps transparency)",
     memeBadgeNone:"no extra jackalization", footer:"made not from a template, but with jackal soul",
     alertNoImg:"upload an image first, jackal", alertNoBgUpload:"upload an image for the background",
-    alertNoFromTab:"first jackalize an image in the “Images” tab" }
+    alertNoFromTab:"first jackalize an image in the “Images” tab", downloadBtn:"⬇ Download PNG" }
 };
 let currentLang = 'ru';
 
@@ -321,6 +341,28 @@ async function degradeCanvas(canvas, level, preserveAlpha){
   ctx.drawImage(finalImg, 0,0, W, H);
 }
 
+// ---- downloads capability ----
+let downloadsNS = null;
+(async ()=>{
+  if(!window.claude || typeof window.claude.use !== 'function') return;
+  try{
+    downloadsNS = await window.claude.use('downloads');
+  }catch(e){ downloadsNS = null; }
+  if(downloadsNS){
+    document.getElementById('downloadImg').style.display = 'block';
+    document.getElementById('downloadMeme').style.display = 'block';
+  }
+})();
+
+async function saveCanvas(canvas, filename){
+  if(!downloadsNS) return;
+  canvas.toBlob(async (blob)=>{
+    if(!blob) return;
+    try{ await downloadsNS.save({ filename, data: blob }); }
+    catch(err){ /* declined or unavailable — nothing to do */ }
+  }, 'image/png');
+}
+
 const levelEl = document.getElementById('level');
 document.getElementById('lvlLabel').textContent = levelEl.value;
 levelEl.oninput = ()=> document.getElementById('lvlLabel').textContent = levelEl.value;
@@ -358,6 +400,7 @@ document.getElementById('goImg').onclick = async ()=>{
     lastShakaledImg = await loadImgAsync(canvas.toDataURL('image/png'));
   } finally { btn.classList.remove('loading'); }
 };
+document.getElementById('downloadImg').onclick = ()=> saveCanvas(document.getElementById('canvas'), 'shakal.png');
 
 const levelMemeEl = document.getElementById('levelMeme');
 document.getElementById('lvlLabelMeme').textContent = levelMemeEl.value;
@@ -466,6 +509,7 @@ document.getElementById('goMeme').onclick = async ()=>{
     popAnim(badgeMeme);
   } finally { btn.classList.remove('loading'); }
 };
+document.getElementById('downloadMeme').onclick = ()=> saveCanvas(document.getElementById('memeCanvas'), 'shakal-meme.png');
 </script>
 </body>
 </html>
