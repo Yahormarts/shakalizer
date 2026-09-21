@@ -142,7 +142,7 @@ footer{ text-align:center; color:#fff; font-size:11px; margin-top:12px; opacity:
       <div class="winbtn" id="closeBtn">×</div>
     </div>
   </div>
-  <div class="menubar"><span>Файл</span><span>Правка</span><span>Вид</span><span>Справка</span></div>
+  <div class="menubar"><span data-i18n="menuFile">Файл</span><span data-i18n="menuEdit">Правка</span><span data-i18n="menuView">Вид</span><span data-i18n="menuHelp">Справка</span></div>
   <div class="descbar" data-i18n="subtitle">орден «за сжатие джипега» вручается автоматически</div>
 
   <div class="content">
@@ -253,7 +253,8 @@ const translations = {
     closeAlert:"Шакала не закрыть! 🐺",
     adTitle:"🎉 ПОЗДРАВЛЯЕМ!!! ВЫ 1 000 000-Й ПОСЕТИТЕЛЬ ШАКАЛИЗАТОРА!!! 🎉",
     adSub:"Никакого приза не будет — просто задонать автору, если зашло!",
-    adBtnText:"☕ ЗАДОНАТИТЬ", adNotNow:"Может, потом..." },
+    adBtnText:"☕ ЗАДОНАТИТЬ", adNotNow:"Может, потом...",
+    menuFile:"Файл", menuEdit:"Правка", menuView:"Вид", menuHelp:"Справка" },
   be: { title:"ШАКАЛІЗАТАР", subtitle:"ордэн «за сціскaнне джыпега» выдаецца аўтаматычна",
     tabImg:"🖼 Малюнкі", tabMeme:"📝 Мем-тэкст",
     imgUploadLabel:"Загрузі малюнак", imgLevelLabel:"Ступень сціскання па шкале шакалаў:",
@@ -273,7 +274,8 @@ const translations = {
     closeAlert:"Шакала не закрыць! 🐺",
     adTitle:"🎉 ВІНШУЕМ!!! ВЫ 1 000 000-Ы НАВЕДВАЛЬНІК ШАКАЛІЗАТАРА!!! 🎉",
     adSub:"Прыза не будзе — проста задонаць аўтару, калі спадабалася!",
-    adBtnText:"☕ ЗАДОНАЦІЦЬ", adNotNow:"Можа, потым..." },
+    adBtnText:"☕ ЗАДОНАЦІЦЬ", adNotNow:"Можа, потым...",
+    menuFile:"Файл", menuEdit:"Праўка", menuView:"Выгляд", menuHelp:"Даведка" },
   uk: { title:"ШАКАЛІЗАТОР", subtitle:"орден «за стиснення джипега» видається автоматично",
     tabImg:"🖼 Картинки", tabMeme:"📝 Мем-текст",
     imgUploadLabel:"Завантаж картинку", imgLevelLabel:"Ступінь стиснення за шкалою шакалів:",
@@ -293,7 +295,8 @@ const translations = {
     closeAlert:"Шакала не закрити! 🐺",
     adTitle:"🎉 ВІТАЄМО!!! ВИ 1 000 000-Й ВІДВІДУВАЧ ШАКАЛІЗАТОРА!!! 🎉",
     adSub:"Жодного призу не буде — просто задонать автору, якщо сподобалось!",
-    adBtnText:"☕ ЗАДОНАТИТИ", adNotNow:"Може, потім..." },
+    adBtnText:"☕ ЗАДОНАТИТИ", adNotNow:"Може, потім...",
+    menuFile:"Файл", menuEdit:"Правка", menuView:"Вигляд", menuHelp:"Довідка" },
   pl: { title:"SZAKALIZATOR", subtitle:"order „za skompresowanie jpega” przyznawany automatycznie",
     tabImg:"🖼 Obrazki", tabMeme:"📝 Mem-tekst",
     imgUploadLabel:"Wgraj obrazek", imgLevelLabel:"Poziom kompresji w skali jebanych szakali:",
@@ -313,7 +316,8 @@ const translations = {
     closeAlert:"Szakala nie da się zamknąć! 🐺",
     adTitle:"🎉 GRATULACJE!!! JESTEŚ 1 000 000-YM GOŚCIEM SZAKALIZATORA!!! 🎉",
     adSub:"Bez nagrody — po prostu wesprzyj autora, jeśli ci się podobało!",
-    adBtnText:"☕ WESPRZYJ", adNotNow:"Może później..." },
+    adBtnText:"☕ WESPRZYJ", adNotNow:"Może później...",
+    menuFile:"Plik", menuEdit:"Edycja", menuView:"Widok", menuHelp:"Pomoc" },
   en: { title:"JACKALIZER", subtitle:"the “for jpeg compression” order is awarded automatically",
     tabImg:"🖼 Images", tabMeme:"📝 Meme text",
     imgUploadLabel:"Upload an image", imgLevelLabel:"Compression level on the damn jackal scale:",
@@ -333,7 +337,8 @@ const translations = {
     closeAlert:"You can't close the jackal! 🐺",
     adTitle:"🎉 CONGRATULATIONS!!! YOU ARE VISITOR #1,000,000 OF THE JACKALIZER!!! 🎉",
     adSub:"No prize here — just support the author if you liked it!",
-    adBtnText:"☕ DONATE", adNotNow:"Maybe later..." }
+    adBtnText:"☕ DONATE", adNotNow:"Maybe later...",
+    menuFile:"File", menuEdit:"Edit", menuView:"View", menuHelp:"Help" }
 };
 let currentLang = 'ru';
 
@@ -349,8 +354,20 @@ function applyLang(lang){
     if(dict[key]!==undefined) el.placeholder = dict[key];
   });
   document.querySelectorAll('.langbtn').forEach(b=> b.classList.toggle('active', b.dataset.lang===lang));
+  document.documentElement.lang = lang;
 }
 document.querySelectorAll('.langbtn').forEach(b=> b.onclick = ()=> applyLang(b.dataset.lang));
+
+// автоопределение языка по браузеру пользователя, с откатом на русский, если совпадений нет
+function detectLang(){
+  const candidates = navigator.languages && navigator.languages.length ? navigator.languages : [navigator.language || 'ru'];
+  for(const l of candidates){
+    const code = l.toLowerCase().slice(0,2);
+    if(translations[code]) return code;
+  }
+  return 'ru';
+}
+applyLang(detectLang());
 
 document.getElementById('closeBtn').onclick = ()=> alert(translations[currentLang].closeAlert);
 
