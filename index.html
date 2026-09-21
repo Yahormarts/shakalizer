@@ -135,7 +135,7 @@ footer{ text-align:center; color:#fff; font-size:11px; margin-top:12px; opacity:
         <label data-i18n="imgUploadLabel">Загрузи картинку</label>
         <input type="file" id="fileInput" accept="image/*">
         <label><span data-i18n="imgLevelLabel">Степень сжатия по шкале ебучих шакалов:</span> <span id="lvlLabel">5</span></label>
-        <input type="range" id="level" min="1" max="10" value="5">
+        <input type="range" id="level" min="0" max="10" value="5">
         <button class="go" id="goImg" data-i18n="imgGoBtn">ШАКАЛИЗИРОВАТЬ</button>
         <div class="previewbox"><canvas id="canvas"></canvas></div>
         <div class="badge" id="badge"></div>
@@ -162,12 +162,14 @@ footer{ text-align:center; color:#fff; font-size:11px; margin-top:12px; opacity:
         <label data-i18n="bottomTextLabel">Нижний текст</label>
         <input type="text" id="bottomText" data-i18n-ph="bottomTextPh" placeholder="НИЖНИЙ ТЕКСТ">
 
-        <label data-i18n="stageLabel">Когда шакалить</label>
-        <select id="degradeStage">
-          <option value="after" data-i18n="stageAfter">После текста — крошится всё, включая текст</option>
-          <option value="before" data-i18n="stageBefore">Только фон — текст остаётся чистым сверху</option>
-          <option value="none" data-i18n="stageNone">Не шакалить — фон уже готов</option>
-        </select>
+        <label data-i18n="degWhatLabel">Что шакалить</label>
+        <div class="radiogroup">
+          <label class="opt"><input type="checkbox" id="degBg" checked> <span data-i18n="degBgLabel">Фон</span></label>
+          <label class="opt"><input type="checkbox" id="degText"> <span data-i18n="degTextLabel">Текст</span></label>
+        </div>
+        <div class="radiogroup" id="mergeWrap" style="display:none;">
+          <label class="opt"><input type="checkbox" id="degMerge"> <span data-i18n="degMergeLabel">Сплавить фон и текст (грязный эффект)</span></label>
+        </div>
 
         <label><span data-i18n="memeLevelLabel">Степень шакализации:</span> <span id="lvlLabelMeme">5</span></label>
         <input type="range" id="levelMeme" min="0" max="10" value="5">
@@ -193,11 +195,13 @@ const translations = {
     levelWord:"ур.", memeBgLabel:"Фон", bgTransparent:"Прозрачный", bgColor:"Цвет", bgUpload:"Своя картинка",
     bgFromTab:"Результат с вкладки «Картинки»", fromTabHint:"Сначала зашакаль что-нибудь на вкладке «Картинки»",
     topTextLabel:"Верхний текст", topTextPh:"ВЕРХНИЙ ТЕКСТ", bottomTextLabel:"Нижний текст", bottomTextPh:"НИЖНИЙ ТЕКСТ",
-    stageLabel:"Когда шакалить", stageAfter:"После текста — крошится всё, включая текст",
-    stageBefore:"Только фон — текст остаётся чистым сверху", stageNone:"Не шакалить — фон уже готов",
+    degWhatLabel:"Что шакалить", degBgLabel:"Фон", degTextLabel:"Текст",
+    degMergeLabel:"Сплавить фон и текст (грязный эффект)",
+    partsBg:"фон", partsText:"текст", partsBoth:"фон + текст", partsMerged:"всё вместе",
     memeLevelLabel:"Степень шакализации:", memeGoBtn:"СГЕНЕРИРОВАТЬ",
     memeHint:"Сохраняй правым кликом → «Сохранить изображение как…» (PNG сохранит прозрачность)",
-    memeBadgeNone:"без доп. шакализации", footer:"сделано не по шаблону, а с душой шакала",
+    memeBadgeNone:"без доп. шакализации", imgBadgeNone:"без шакализации",
+    footer:"сделано не по шаблону, а с душой шакала",
     alertNoImg:"сначала загрузи картинку, шакал", alertNoBgUpload:"загрузи картинку для фона",
     alertNoFromTab:"сначала зашакаль картинку на вкладке «Картинки»", downloadBtn:"⬇ Скачать PNG",
     closeAlert:"Шакала не закрыть! 🐺" },
@@ -208,11 +212,13 @@ const translations = {
     levelWord:"ўзр.", memeBgLabel:"Фон", bgTransparent:"Празрысты", bgColor:"Колер", bgUpload:"Свой малюнак",
     bgFromTab:"Выніку з укладкі «Малюнкі»", fromTabHint:"Спачатку зашакаль штосьці на ўкладцы «Малюнкі»",
     topTextLabel:"Верхні тэкст", topTextPh:"ВЕРХНІ ТЭКСТ", bottomTextLabel:"Ніжні тэкст", bottomTextPh:"НІЖНІ ТЭКСТ",
-    stageLabel:"Калі шакалізаваць", stageAfter:"Пасля тэксту — крышыцца ўсё, разам з тэкстам",
-    stageBefore:"Толькі фон — тэкст застаецца чыстым зверху", stageNone:"Не шакалізаваць — фон ужо гатовы",
+    degWhatLabel:"Што шакалізаваць", degBgLabel:"Фон", degTextLabel:"Тэкст",
+    degMergeLabel:"Сплавіць фон і тэкст (брудны эфект)",
+    partsBg:"фон", partsText:"тэкст", partsBoth:"фон + тэкст", partsMerged:"усё разам",
     memeLevelLabel:"Ступень шакалізацыі:", memeGoBtn:"ЗГЕНЕРАВАЦЬ",
     memeHint:"Захоўвай правай кнопкай → «Захаваць малюнак як…» (PNG захавае празрыстасць)",
-    memeBadgeNone:"без дадатковай шакалізацыі", footer:"зроблена не па шаблоне, а з душой шакала",
+    memeBadgeNone:"без дадатковай шакалізацыі", imgBadgeNone:"без шакалізацыі",
+    footer:"зроблена не па шаблоне, а з душой шакала",
     alertNoImg:"спачатку загрузі малюнак, шакал", alertNoBgUpload:"загрузі малюнак для фону",
     alertNoFromTab:"спачатку зашакаль малюнак на ўкладцы «Малюнкі»", downloadBtn:"⬇ Спампаваць PNG",
     closeAlert:"Шакала не закрыць! 🐺" },
@@ -223,11 +229,13 @@ const translations = {
     levelWord:"рів.", memeBgLabel:"Фон", bgTransparent:"Прозорий", bgColor:"Колір", bgUpload:"Своя картинка",
     bgFromTab:"Результат із вкладки «Картинки»", fromTabHint:"Спочатку зашакаль щось у вкладці «Картинки»",
     topTextLabel:"Верхній текст", topTextPh:"ВЕРХНІЙ ТЕКСТ", bottomTextLabel:"Нижній текст", bottomTextPh:"НИЖНІЙ ТЕКСТ",
-    stageLabel:"Коли шакалізувати", stageAfter:"Після тексту — кришиться все, разом з текстом",
-    stageBefore:"Тільки фон — текст залишається чистим зверху", stageNone:"Не шакалізувати — фон уже готовий",
+    degWhatLabel:"Що шакалізувати", degBgLabel:"Фон", degTextLabel:"Текст",
+    degMergeLabel:"Сплавити фон і текст (брудний ефект)",
+    partsBg:"фон", partsText:"текст", partsBoth:"фон + текст", partsMerged:"усе разом",
     memeLevelLabel:"Ступінь шакалізації:", memeGoBtn:"ЗГЕНЕРУВАТИ",
     memeHint:"Зберігай правою кнопкою → «Зберегти зображення як…» (PNG збереже прозорість)",
-    memeBadgeNone:"без додаткової шакалізації", footer:"зроблено не за шаблоном, а з душею шакала",
+    memeBadgeNone:"без додаткової шакалізації", imgBadgeNone:"без шакалізації",
+    footer:"зроблено не за шаблоном, а з душею шакала",
     alertNoImg:"спочатку завантаж картинку, шакал", alertNoBgUpload:"завантаж картинку для фону",
     alertNoFromTab:"спочатку зашакаль картинку у вкладці «Картинки»", downloadBtn:"⬇ Завантажити PNG",
     closeAlert:"Шакала не закрити! 🐺" },
@@ -238,11 +246,13 @@ const translations = {
     levelWord:"poz.", memeBgLabel:"Tło", bgTransparent:"Przezroczyste", bgColor:"Kolor", bgUpload:"Własny obrazek",
     bgFromTab:"Wynik z zakładki „Obrazki”", fromTabHint:"Najpierw zaszakaluj coś w zakładce „Obrazki”",
     topTextLabel:"Górny tekst", topTextPh:"GÓRNY TEKST", bottomTextLabel:"Dolny tekst", bottomTextPh:"DOLNY TEKST",
-    stageLabel:"Kiedy szakalizować", stageAfter:"Po tekście — wszystko się psuje, razem z tekstem",
-    stageBefore:"Tylko tło — tekst zostaje czysty na wierzchu", stageNone:"Nie szakalizuj — tło jest już gotowe",
+    degWhatLabel:"Co szakalizować", degBgLabel:"Tło", degTextLabel:"Tekst",
+    degMergeLabel:"Połącz tło z tekstem (brudny efekt)",
+    partsBg:"tło", partsText:"tekst", partsBoth:"tło + tekst", partsMerged:"wszystko razem",
     memeLevelLabel:"Poziom szakalizacji:", memeGoBtn:"WYGENERUJ",
     memeHint:"Zapisuj prawym przyciskiem → „Zapisz obraz jako…” (PNG zachowa przezroczystość)",
-    memeBadgeNone:"bez dodatkowej szakalizacji", footer:"zrobione nie z szablonu, a z duszą szakala",
+    memeBadgeNone:"bez dodatkowej szakalizacji", imgBadgeNone:"bez szakalizacji",
+    footer:"zrobione nie z szablonu, a z duszą szakala",
     alertNoImg:"najpierw wgraj obrazek, szakalu", alertNoBgUpload:"wgraj obrazek jako tło",
     alertNoFromTab:"najpierw zaszakaluj obrazek w zakładce „Obrazki”", downloadBtn:"⬇ Pobierz PNG",
     closeAlert:"Szakala nie da się zamknąć! 🐺" },
@@ -253,11 +263,13 @@ const translations = {
     levelWord:"lvl", memeBgLabel:"Background", bgTransparent:"Transparent", bgColor:"Color", bgUpload:"Custom image",
     bgFromTab:"Result from “Images” tab", fromTabHint:"First jackalize something in the “Images” tab",
     topTextLabel:"Top text", topTextPh:"TOP TEXT", bottomTextLabel:"Bottom text", bottomTextPh:"BOTTOM TEXT",
-    stageLabel:"When to jackalize", stageAfter:"After the text — everything crumbles, text included",
-    stageBefore:"Background only — text stays crisp on top", stageNone:"Don't jackalize — background is already done",
+    degWhatLabel:"What to jackalize", degBgLabel:"Background", degTextLabel:"Text",
+    degMergeLabel:"Merge background & text (messy effect)",
+    partsBg:"background", partsText:"text", partsBoth:"background + text", partsMerged:"everything merged",
     memeLevelLabel:"Jackalization level:", memeGoBtn:"GENERATE",
     memeHint:"Save via right click → “Save image as…” (PNG keeps transparency)",
-    memeBadgeNone:"no extra jackalization", footer:"made not from a template, but with jackal soul",
+    memeBadgeNone:"no extra jackalization", imgBadgeNone:"no jackalization",
+    footer:"made not from a template, but with jackal soul",
     alertNoImg:"upload an image first, jackal", alertNoBgUpload:"upload an image for the background",
     alertNoFromTab:"first jackalize an image in the “Images” tab", downloadBtn:"⬇ Download PNG",
     closeAlert:"You can't close the jackal! 🐺" }
@@ -300,11 +312,13 @@ function loadImgAsync(src){
   return new Promise(res=>{ const im = new Image(); im.onload = ()=>res(im); im.src = src; });
 }
 
-async function degradeCanvas(canvas, level, preserveAlpha){
+async function degradeCanvas(canvas, level){
   const ctx = canvas.getContext('2d');
   const W = canvas.width, H = canvas.height;
   if(level <= 0) return;
-  const mime = preserveAlpha ? 'image/webp' : 'image/jpeg';
+  // webp always: gives the same blocky jpeg-style artifacts but never flattens transparency,
+  // so it's safe for both plain photos and images/text-layers with alpha
+  const mime = 'image/webp';
   const pixScale = Math.max(0.04, 1 - level*0.075);
   const tmp = document.createElement('canvas');
   tmp.width = Math.max(1, Math.round(W*pixScale));
@@ -388,12 +402,17 @@ document.getElementById('goImg').onclick = async ()=>{
     const H = Math.round(loadedImg.height * scaleFit);
     canvas.width = W; canvas.height = H;
     ctx.drawImage(loadedImg, 0,0, W, H);
-    await degradeCanvas(canvas, level, false);
+    await degradeCanvas(canvas, level);
     popAnim(canvas);
     const badge = document.getElementById('badge');
-    badge.textContent = '🐺'.repeat(level) + '  ' + translations[currentLang].levelWord + ' ' + level;
+    badge.textContent = level>0
+      ? ('🐺'.repeat(level) + '  ' + translations[currentLang].levelWord + ' ' + level)
+      : translations[currentLang].imgBadgeNone;
     popAnim(badge);
     lastShakaledImg = await loadImgAsync(canvas.toDataURL('image/png'));
+    if(document.querySelector('input[name="bgsrc"]:checked')?.value === 'fromtab'){
+      document.getElementById('fromTabHint').style.display = 'none';
+    }
   } finally { btn.classList.remove('loading'); }
 };
 document.getElementById('downloadImg').onclick = ()=> saveCanvas(document.getElementById('canvas'), 'shakal.png');
@@ -410,6 +429,14 @@ document.getElementById('memeFile').onchange = (e)=>{
   img.onload = ()=>{ memeUploadImg = img; };
   img.src = URL.createObjectURL(file);
 };
+
+function updateMergeVisibility(){
+  const both = document.getElementById('degBg').checked && document.getElementById('degText').checked;
+  document.getElementById('mergeWrap').style.display = both ? 'flex' : 'none';
+  if(!both) document.getElementById('degMerge').checked = false;
+}
+document.getElementById('degBg').onchange = updateMergeVisibility;
+document.getElementById('degText').onchange = updateMergeVisibility;
 
 document.querySelectorAll('input[name="bgsrc"]').forEach(r=>{
   r.onchange = ()=>{
@@ -430,6 +457,19 @@ function wrapText(ctx, text, maxWidth){
   }
   if(line) lines.push(line);
   return lines;
+}
+
+function fitFontSize(ctx, text, maxWidth, size){
+  if(!text) return size;
+  let s = size;
+  ctx.font = `bold ${s}px Impact, 'Arial Black', sans-serif`;
+  const words = text.toUpperCase().split(' ');
+  const longest = words.reduce((a,b)=> ctx.measureText(a).width > ctx.measureText(b).width ? a : b, '');
+  while(s > 10 && ctx.measureText(longest).width > maxWidth){
+    s -= 2;
+    ctx.font = `bold ${s}px Impact, 'Arial Black', sans-serif`;
+  }
+  return s;
 }
 
 function drawMemeCaption(ctx, text, W, fontSize, yStart, direction){
@@ -468,40 +508,69 @@ document.getElementById('goMeme').onclick = async ()=>{
     const canvas = document.getElementById('memeCanvas');
     const ctx = canvas.getContext('2d');
     const W = 600;
-    const H = bgImage ? Math.round(600 * bgImage.height/bgImage.width) : 450;
-    canvas.width = W; canvas.height = Math.max(300, H);
-    ctx.clearRect(0,0,W,canvas.height);
+    const rawH = bgImage ? Math.round(600 * bgImage.height/bgImage.width) : 450;
+    const H = Math.min(900, Math.max(300, rawH));
+    canvas.width = W; canvas.height = H;
+    ctx.clearRect(0,0,W,H);
 
     if(bgsrc === 'color'){
       ctx.fillStyle = document.getElementById('bgColorInput').value;
-      ctx.fillRect(0,0,W,canvas.height);
+      ctx.fillRect(0,0,W,H);
     } else if(bgImage){
-      ctx.drawImage(bgImage, 0,0, W, canvas.height);
+      ctx.drawImage(bgImage, 0,0, W, H);
     }
+    // transparent — оставляем как есть, ничего не заливаем
 
-    const stage = document.getElementById('degradeStage').value;
+    const wantBg = document.getElementById('degBg').checked;
+    const wantText = document.getElementById('degText').checked;
+    const wantMerge = wantBg && wantText && document.getElementById('degMerge').checked;
     const level = parseInt(levelMemeEl.value,10);
-    const isTransparent = (bgsrc === 'transparent');
+    const isTransparentBg = (bgsrc === 'transparent');
 
-    if(stage === 'before' && level > 0 && !isTransparent){
-      await degradeCanvas(canvas, level, false);
-    }
-
-    const fontSize = Math.round(W/10);
     const top = document.getElementById('topText').value.trim();
     const bottom = document.getElementById('bottomText').value.trim();
-    if(top) drawMemeCaption(ctx, top, W, fontSize, fontSize*1.1, 1);
-    if(bottom) drawMemeCaption(ctx, bottom, W, fontSize, canvas.height - fontSize*0.5, -1);
+    const maxWidth = W * 0.9;
+    const baseSize = Math.round(W/10);
+    const topSize = fitFontSize(ctx, top, maxWidth, baseSize);
+    const bottomSize = fitFontSize(ctx, bottom, maxWidth, baseSize);
 
-    if(stage === 'after' && level > 0){
-      await degradeCanvas(canvas, level, isTransparent);
+    function paintCaptions(targetCtx){
+      if(top) drawMemeCaption(targetCtx, top, W, topSize, topSize*1.1, 1);
+      if(bottom) drawMemeCaption(targetCtx, bottom, W, bottomSize, H - bottomSize*0.5, -1);
+    }
+
+    if(wantMerge){
+      // единый проход: текст рисуется поверх фона и всё сжимается вместе — классический "грязный" эффект
+      paintCaptions(ctx);
+      if(level > 0) await degradeCanvas(canvas, level);
+    } else {
+      if(wantBg && level > 0 && !isTransparentBg){
+        await degradeCanvas(canvas, level); // фон деградирует один, текста ещё нет
+      }
+      if(top || bottom){
+        if(wantText && level > 0){
+          // текст рисуется и шакалится отдельным прозрачным слоем, потом накладывается на чистый/уже готовый фон
+          const textCanvas = document.createElement('canvas');
+          textCanvas.width = W; textCanvas.height = H;
+          const tctx = textCanvas.getContext('2d');
+          paintCaptions(tctx);
+          await degradeCanvas(textCanvas, level);
+          ctx.drawImage(textCanvas, 0, 0);
+        } else {
+          paintCaptions(ctx);
+        }
+      }
     }
     popAnim(canvas);
 
+    const t = translations[currentLang];
     const badgeMeme = document.getElementById('badgeMeme');
-    badgeMeme.textContent = (stage !== 'none' && level>0)
-      ? ('🐺'.repeat(level) + '  ' + translations[currentLang].levelWord + ' ' + level)
-      : translations[currentLang].memeBadgeNone;
+    if((wantBg || wantText) && level > 0){
+      let parts = wantMerge ? t.partsMerged : (wantBg && wantText ? t.partsBoth : (wantBg ? t.partsBg : t.partsText));
+      badgeMeme.textContent = '🐺'.repeat(level) + '  ' + t.levelWord + ' ' + level + ' · ' + parts;
+    } else {
+      badgeMeme.textContent = t.memeBadgeNone;
+    }
     popAnim(badgeMeme);
   } finally { btn.classList.remove('loading'); }
 };
