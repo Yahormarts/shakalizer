@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ШАКАЛИЗАТОР.EXE</title>
+<style>
+:root{
+  --win:#c0c0c0; --desktop:#008080; --titlestart:#000080; --titleend:#1084d0; --text:#000000;
+  box-sizing:border-box;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+html{ scroll-padding-top: env(safe-area-inset-top, 0px); }
+*{ box-sizing:border-box; }
+body{
+  margin:0; background:var(--desktop); color:var(--text); min-height:100%;
+  font-family:'Tahoma','MS Sans Serif',Arial,sans-serif; font-size:12px; padding:16px;
+}
+
+.window{ max-width:720px; margin:0 auto; background:var(--win); border:2px outset var(--win); }
+
+.titlebar{ background:linear-gradient(90deg,var(--titlestart),var(--titleend)); color:#fff; font-weight:bold;
+  font-size:13px; padding:3px 5px; display:flex; align-items:center; justify-content:space-between; }
+.titlebar .ttl{ display:flex; align-items:center; gap:4px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.winbtns{ display:flex; gap:2px; flex-shrink:0; }
+.winbtn{ width:17px; height:15px; background:var(--win); border:2px outset var(--win);
+  font-size:10px; line-height:11px; text-align:center; cursor:pointer; color:#000; font-weight:bold; user-select:none; }
+.winbtn:active{ border-style:inset; }
+
+.menubar{ display:flex; gap:14px; padding:3px 8px; font-size:12px; border-bottom:1px solid #808080; }
+.menubar span{ cursor:default; }
+.menubar span:hover{ background:var(--titlestart); color:#fff; padding:0 3px; }
+
+.descbar{ padding:5px 10px; font-size:11px; font-style:italic; border-bottom:1px solid #808080; background:#d4d0c8; }
+
+.content{ padding:10px; }
+
+.langrow{ display:flex; gap:4px; margin-bottom:8px; flex-wrap:wrap; }
+.langbtn{ font-family:inherit; font-size:11px; background:var(--win); padding:4px 9px; cursor:pointer;
+  border:2px outset var(--win); font-weight:bold; }
+.langbtn.active{ border-style:inset; background:#b8b8b8; }
+
+.tabs{ display:flex; gap:3px; margin-bottom:0; }
+.tab{ font-family:inherit; font-size:12px; background:var(--win); padding:5px 14px; cursor:pointer;
+  border:2px outset var(--win); border-bottom:none; font-weight:bold; }
+.tab.active{ background:#d4d0c8; position:relative; top:1px; }
+
+.panel{ display:none; }
+.panel.active{ display:block; }
+
+.card{ border:2px groove var(--win); background:#d4d0c8; padding:12px; margin-top:0; }
+
+label{ font-weight:bold; color:#000; font-size:12px; display:block; margin-bottom:3px; }
+label.opt{ font-weight:normal; display:inline-flex; align-items:center; gap:4px; cursor:pointer; font-size:12px; margin-bottom:0; }
+
+input[type=file]{ font-family:inherit; font-size:12px; margin:4px 0 10px; max-width:100%; }
+input[type=text]{ width:100%; background:#fff; color:#000; border:2px inset var(--win);
+  padding:5px 6px; font-size:14px; margin-bottom:10px; font-family:inherit; }
+select{ width:100%; background:#fff; color:#000; border:2px inset var(--win);
+  padding:5px 6px; font-size:12px; margin-bottom:10px; font-family:inherit; }
+
+input[type=range]{ width:100%; margin:8px 0 4px; -webkit-appearance:none; height:4px; background:#808080; outline:none; }
+input[type=range]::-webkit-slider-thumb{ -webkit-appearance:none; width:16px; height:16px;
+  background:var(--win); border:2px outset var(--win); cursor:pointer; }
+input[type=range]::-moz-range-thumb{ width:16px; height:16px; background:var(--win); border:2px outset var(--win); cursor:pointer; }
+
+input[type=color]{ vertical-align:middle; width:40px; height:26px; border:2px inset var(--win); margin:4px 0 10px; padding:0; }
+input[type=radio]{ accent-color:#000080; }
+.radiogroup{ display:flex; flex-wrap:wrap; gap:8px 14px; margin-bottom:10px; }
+
+button.go{ display:block; width:100%; background:var(--win); color:#000; border:2px outset var(--win);
+  padding:8px; font-size:14px; font-weight:bold; cursor:pointer; margin-top:10px; font-family:inherit; }
+button.go:active{ border-style:inset; }
+button.go.loading{ color:#555; pointer-events:none; position:relative; }
+button.go.loading::after{ content:''; position:absolute; right:12px; top:50%; width:13px; height:13px;
+  margin-top:-7px; border:2px solid #808080; border-top-color:#000; border-radius:50%; animation:spin .7s linear infinite; }
+@keyframes spin{ to{ transform:rotate(360deg); } }
+button.download{ background:#d4d0c8; }
+
+.previewbox{ border:2px inset var(--win); background:#fff; padding:4px; margin-top:12px; }
+.checkerboard{
+  background-image:
+    linear-gradient(45deg,#999 25%,transparent 25%),linear-gradient(-45deg,#999 25%,transparent 25%),
+    linear-gradient(45deg,transparent 75%,#999 75%),linear-gradient(-45deg,transparent 75%,#999 75%);
+  background-size:16px 16px; background-position:0 0,0 8px,8px -8px,-8px 0; background-color:#ccc;
+}
+canvas{ max-width:100%; height:auto; display:block; }
+
+.hint{ font-size:11px; opacity:.75; margin-top:8px; }
+.badge{ border:2px inset var(--win); background:#fff; padding:5px 8px; font-size:13px;
+  margin-top:8px; min-height:18px; word-break:break-word; }
+
+footer{ text-align:center; color:#fff; font-size:11px; margin-top:12px; opacity:.9; }
+
+/* --- fake 90s popup ad --- */
+.ad-overlay{ display:none; position:fixed; inset:0; background:rgba(0,0,0,.55); z-index:999;
+  align-items:center; justify-content:center; padding:16px; }
+.ad-overlay.show{ display:flex; }
+.ad-box{ position:relative; background:#fff; color:#000; max-width:360px; width:100%;
+  padding:16px 14px 12px; text-align:center; font-family:'Comic Sans MS','Comic Sans',cursive,sans-serif;
+  border:6px solid red; border-radius:4px; box-shadow:0 0 40px rgba(0,0,0,.6);
+  animation:blinkBorder 1s linear infinite; }
+@keyframes blinkBorder{
+  0%{ border-color:#ff0000; } 20%{ border-color:#ffe000; } 40%{ border-color:#00ff2f; }
+  60%{ border-color:#00e5ff; } 80%{ border-color:#ff00c8; } 100%{ border-color:#ff0000; }
+}
+.ad-blink-text{ font-weight:bold; font-size:16px; color:#c00000; line-height:1.3;
+  animation:flicker .8s infinite; }
+@keyframes flicker{ 0%,100%{ opacity:1; } 50%{ opacity:.45; } }
+.ad-sub{ font-size:13px; margin:10px 0; }
+.ad-row{ display:flex; gap:12px; align-items:center; justify-content:center; margin:10px 0; flex-wrap:wrap; }
+.ad-btn{ background:linear-gradient(#ffe259,#ffa751); color:#000; font-weight:bold; font-size:13px;
+  padding:10px 12px; border:3px outset #ffd700; text-decoration:none; display:inline-block;
+  font-family:inherit; cursor:pointer; animation:pulseBtn 1s infinite; line-height:1.4; }
+.ad-btn:active{ border-style:inset; }
+.ad-btn-url{ font-size:10px; font-weight:normal; }
+@keyframes pulseBtn{ 0%,100%{ transform:scale(1); } 50%{ transform:scale(1.06); } }
+.ad-qr{ background:#fff; padding:4px; border:2px solid #000; line-height:0; }
+.ad-notnow{ margin-top:10px; background:none; border:none; text-decoration:underline;
+  font-size:11px; color:#555; cursor:pointer; font-family:inherit; }
+.ad-tinyclose{ position:absolute; top:3px; right:6px; font-size:11px; color:#bbb; cursor:pointer;
+  user-select:none; font-family:Arial,sans-serif; }
+
+@media (max-width:480px){
+  body{ padding:8px; font-size:11px; }
+  .tab{ padding:5px 10px; font-size:11px; }
+  .langbtn{ padding:3px 6px; font-size:10px; }
+  button.go{ font-size:13px; }
+  .titlebar{ font-size:12px; }
+}
+</style>
+</head>
+<body>
+
+<div class="window">
+  <div class="titlebar">
+    <div class="ttl"><span>🐺</span><span data-i18n="title">ШАКАЛИЗАТОР</span><span>.EXE</span></div>
+    <div class="winbtns">
+      <div class="winbtn" id="minBtn">_</div>
+      <div class="winbtn" id="maxBtn">□</div>
+      <div class="winbtn" id="closeBtn">×</div>
+    </div>
+  </div>
+  <div class="menubar"><span data-i18n="menuFile">Файл</span><span data-i18n="menuEdit">Правка</span><span data-i18n="menuView">Вид</span><span data-i18n="menuHelp">Справка</span></div>
+  <div class="descbar" data-i18n="subtitle">орден «за сжатие джипега» вручается автоматически</div>
+
+  <div class="content">
+    <div class="langrow">
+      <button class="langbtn" data-lang="be">BY</button>
+      <button class="langbtn active" data-lang="ru">RU</button>
+      <button class="langbtn" data-lang="uk">UA</button>
+      <button class="langbtn" data-lang="pl">PL</button>
+      <button class="langbtn" data-lang="en">EN</button>
+    </div>
+
+    <div class="tabs">
+      <div class="tab active" data-tab="img"><span data-i18n="tabImg">🖼 Картинки</span></div>
+      <div class="tab" data-tab="meme"><span data-i18n="tabMeme">📝 Мем-текст</span></div>
+    </div>
+
+    <div class="panel active" id="panel-img">
+      <div class="card">
+        <label data-i18n="imgUploadLabel">Загрузи картинку</label>
+        <input type="file" id="fileInput" accept="image/*">
+        <label><span data-i18n="imgLevelLabel">Степень сжатия по шкале ебучих шакалов:</span> <span id="lvlLabel">5</span></label>
+        <input type="range" id="level" min="0" max="10" value="5">
+        <button class="go" id="goImg" data-i18n="imgGoBtn">ШАКАЛИЗИРОВАТЬ</button>
+        <div class="previewbox"><canvas id="canvas"></canvas></div>
+        <div class="badge" id="badge"></div>
+        <button class="go download" id="downloadImg" data-i18n="downloadBtn">⬇ Скачать PNG</button>
+        <div class="hint" data-i18n="imgHint">Результат сразу можно использовать как фон на вкладке «Мем-текст»</div>
+      </div>
+    </div>
+
+    <div class="panel" id="panel-meme">
+      <div class="card">
+        <label data-i18n="memeBgLabel">Фон</label>
+        <div class="radiogroup">
+          <label class="opt"><input type="radio" name="bgsrc" value="transparent" checked> <span data-i18n="bgTransparent">Прозрачный</span></label>
+          <label class="opt"><input type="radio" name="bgsrc" value="color"> <span data-i18n="bgColor">Цвет</span></label>
+          <label class="opt"><input type="radio" name="bgsrc" value="upload"> <span data-i18n="bgUpload">Своя картинка</span></label>
+          <label class="opt"><input type="radio" name="bgsrc" value="fromtab"> <span data-i18n="bgFromTab">Результат с вкладки «Картинки»</span></label>
+        </div>
+        <input type="color" id="bgColorInput" value="#3a3a3a" style="display:none;">
+        <input type="file" id="memeFile" accept="image/*" style="display:none;">
+        <div class="hint" id="fromTabHint" data-i18n="fromTabHint" style="display:none;">Сначала зашакаль что-нибудь на вкладке «Картинки»</div>
+
+        <label data-i18n="topTextLabel">Верхний текст</label>
+        <input type="text" id="topText" data-i18n-ph="topTextPh" placeholder="ВЕРХНИЙ ТЕКСТ">
+        <label data-i18n="bottomTextLabel">Нижний текст</label>
+        <input type="text" id="bottomText" data-i18n-ph="bottomTextPh" placeholder="НИЖНИЙ ТЕКСТ">
+
+        <label data-i18n="degWhatLabel">Что шакалить</label>
+        <div class="radiogroup">
+          <label class="opt"><input type="checkbox" id="degBg" checked> <span data-i18n="degBgLabel">Фон</span></label>
+          <label class="opt"><input type="checkbox" id="degText"> <span data-i18n="degTextLabel">Текст</span></label>
+        </div>
+        <div class="radiogroup" id="mergeWrap" style="display:none;">
+          <label class="opt"><input type="checkbox" id="degMerge"> <span data-i18n="degMergeLabel">Сплавить фон и текст (грязный эффект)</span></label>
+        </div>
+
+        <label><span data-i18n="memeLevelLabel">Степень шакализации:</span> <span id="lvlLabelMeme">5</span></label>
+        <input type="range" id="levelMeme" min="0" max="10" value="5">
+
+        <button class="go" id="goMeme" data-i18n="memeGoBtn">СГЕНЕРИРОВАТЬ</button>
+        <div class="previewbox"><canvas id="memeCanvas" class="checkerboard"></canvas></div>
+        <div class="badge" id="badgeMeme"></div>
+        <button class="go download" id="downloadMeme" data-i18n="downloadBtn">⬇ Скачать PNG</button>
+        <div class="hint" data-i18n="memeHint">Сохраняй правым кликом → «Сохранить изображение как…» (PNG сохранит прозрачность)</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="ad-overlay" id="adOverlay">
+  <div class="ad-box">
+    <div class="ad-tinyclose" id="adTinyClose">×</div>
+    <div class="ad-blink-text" data-i18n="adTitle">🎉 ПОЗДРАВЛЯЕМ!!! ВЫ 1 000 000-Й ПОСЕТИТЕЛЬ ШАКАЛИЗАТОРА!!! 🎉</div>
+    <div class="ad-sub" data-i18n="adSub">Никакого приза не будет — просто задонать автору, если зашло!</div>
+    <div class="ad-row">
+      <a class="ad-btn" href="https://buymeacoffee.com/belgaming" target="_blank" rel="noopener">
+        <span data-i18n="adBtnText">☕ ЗАДОНАТИТЬ</span><br><span class="ad-btn-url">buymeacoffee.com/belgaming</span>
+      </a>
+      <div class="ad-qr">
+        <svg xmlns="http://www.w3.org/2000/svg" width="92" height="92" viewBox="0 0 31 31" shape-rendering="crispEdges"><path fill="#ffffff" d="M0 0h31v31H0z"/><path stroke="#000000" d="M1 1.5h7m2 0h2m1 0h4m1 0h4m1 0h7M1 2.5h1m5 0h1m2 0h9m2 0h1m1 0h1m5 0h1M1 3.5h1m1 0h3m1 0h1m1 0h1m4 0h1m1 0h1m3 0h1m2 0h1m1 0h3m1 0h1M1 4.5h1m1 0h3m1 0h1m1 0h3m3 0h2m1 0h1m4 0h1m1 0h3m1 0h1M1 5.5h1m1 0h3m1 0h1m1 0h1m1 0h1m4 0h6m1 0h1m1 0h3m1 0h1M1 6.5h1m5 0h1m1 0h2m1 0h1m10 0h1m5 0h1M1 7.5h7m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h1m1 0h7M9 8.5h1m1 0h2m2 0h1m1 0h1m2 0h2M1 9.5h1m1 0h5m2 0h3m5 0h3m2 0h5M1 10.5h1m1 0h1m1 0h1m2 0h2m2 0h1m1 0h3m1 0h3m1 0h4m3 0h1M1 11.5h1m1 0h1m2 0h3m3 0h7m2 0h1m2 0h2M2 12.5h1m1 0h1m3 0h1m1 0h3m1 0h1m2 0h1m3 0h1m2 0h1m1 0h1m1 0h1M4 13.5h4m4 0h2m1 0h2m1 0h1m7 0h2M2 14.5h1m2 0h1m3 0h2m1 0h1m4 0h1m1 0h7m3 0h1M2 15.5h1m4 0h1m2 0h1m1 0h2m2 0h1m1 0h2m1 0h2m1 0h4M1 16.5h1m2 0h1m1 0h1m1 0h3m1 0h2m1 0h1m1 0h1m1 0h1m1 0h1m6 0h1M1 17.5h3m2 0h4m1 0h1m6 0h1m5 0h1m1 0h2M1 18.5h4m3 0h1m2 0h5m1 0h1m1 0h7m1 0h1m1 0h1M1 19.5h1m3 0h1m1 0h1m2 0h1m1 0h1m1 0h4m4 0h1m1 0h2m1 0h1M1 20.5h1m3 0h1m5 0h1m2 0h1m1 0h1m3 0h2m1 0h3m2 0h1M1 21.5h1m1 0h2m2 0h1m1 0h2m1 0h1m2 0h1m2 0h1m2 0h5m1 0h3M9 22.5h4m4 0h3m1 0h1m3 0h5M1 23.5h7m2 0h3m3 0h2m2 0h2m1 0h1m1 0h3M1 24.5h1m5 0h1m1 0h1m1 0h1m1 0h1m1 0h3m1 0h3m3 0h1m2 0h2M1 25.5h1m1 0h3m1 0h1m1 0h1m1 0h1m6 0h1m2 0h5m1 0h2M1 26.5h1m1 0h3m1 0h1m1 0h2m2 0h1m1 0h1m1 0h1m1 0h1m1 0h1m2 0h1m1 0h4M1 27.5h1m1 0h3m1 0h1m1 0h1m2 0h2m1 0h4m1 0h1m1 0h7M1 28.5h1m5 0h1m2 0h7m4 0h1m1 0h1m2 0h1m1 0h1M1 29.5h7m1 0h2m1 0h1m3 0h1m1 0h1m1 0h1m2 0h1m1 0h1m1 0h1"/></svg>
+      </div>
+    </div>
+    <button class="ad-notnow" id="adNotNow" data-i18n="adNotNow">Может, потом...</button>
+  </div>
+</div>
+
+<footer data-i18n="footer">сделано не по шаблону, а с душой шакала</footer>
+
+<script>
+const translations = {
+  ru: { title:"ШАКАЛИЗАТОР", subtitle:"орден «за сжатие джипега» вручается автоматически",
+    tabImg:"🖼 Картинки", tabMeme:"📝 Мем-текст",
+    imgUploadLabel:"Загрузи картинку", imgLevelLabel:"Степень сжатия по шкале ебучих шакалов:",
+    imgGoBtn:"ШАКАЛИЗИРОВАТЬ", imgHint:"Результат сразу можно использовать как фон на вкладке «Мем-текст»",
+    levelWord:"ур.", memeBgLabel:"Фон", bgTransparent:"Прозрачный", bgColor:"Цвет", bgUpload:"Своя картинка",
+    bgFromTab:"Результат с вкладки «Картинки»", fromTabHint:"Сначала зашакаль что-нибудь на вкладке «Картинки»",
+    topTextLabel:"Верхний текст", topTextPh:"ВЕРХНИЙ ТЕКСТ", bottomTextLabel:"Нижний текст", bottomTextPh:"НИЖНИЙ ТЕКСТ",
+    degWhatLabel:"Что шакалить", degBgLabel:"Фон", degTextLabel:"Текст",
+    degMergeLabel:"Сплавить фон и текст (грязный эффект)",
+    partsBg:"фон", partsText:"текст", partsBoth:"фон + текст", partsMerged:"всё вместе",
+    memeLevelLabel:"Степень шакализации:", memeGoBtn:"СГЕНЕРИРОВАТЬ",
+    memeHint:"Сохраняй правым кликом → «Сохранить изображение как…» (PNG сохранит прозрачность)",
+    memeBadgeNone:"без доп. шакализации", imgBadgeNone:"без шакализации",
+    footer:"сделано не по шаблону, а с душой шакала",
+    alertNoImg:"сначала загрузи картинку, шакал", alertNoBgUpload:"загрузи картинку для фона",
+    alertNoFromTab:"сначала зашакаль картинку на вкладке «Картинки»", downloadBtn:"⬇ Скачать PNG",
+    closeAlert:"Шакала не закрыть! 🐺",
+    adTitle:"🎉 ПОЗДРАВЛЯЕМ!!! ВЫ 1 000 000-Й ПОСЕТИТЕЛЬ ШАКАЛИЗАТОРА!!! 🎉",
+    adSub:"Никакого приза не будет — просто задонать автору, если зашло!",
+    adBtnText:"☕ ЗАДОНАТИТЬ", adNotNow:"Может, потом...",
+    menuFile:"Файл", menuEdit:"Правка", menuView:"Вид", menuHelp:"Справка" },
+  be: { title:"ШАКАЛІЗАТАР", subtitle:"ордэн «за сціскaнне джыпега» выдаецца аўтаматычна",
+    tabImg:"🖼 Малюнкі", tabMeme:"📝 Мем-тэкст",
+    imgUploadLabel:"Загрузі малюнак", imgLevelLabel:"Ступень сціскання па шкале шакалаў:",
+    imgGoBtn:"ШАКАЛІЗАВАЦЬ", imgHint:"Результат можна адразу выкарыстаць як фон на ўкладцы «Мем-тэкст»",
+    levelWord:"ўзр.", memeBgLabel:"Фон", bgTransparent:"Празрысты", bgColor:"Колер", bgUpload:"Свой малюнак",
+    bgFromTab:"Выніку з укладкі «Малюнкі»", fromTabHint:"Спачатку зашакаль штосьці на ўкладцы «Малюнкі»",
+    topTextLabel:"Верхні тэкст", topTextPh:"ВЕРХНІ ТЭКСТ", bottomTextLabel:"Ніжні тэкст", bottomTextPh:"НІЖНІ ТЭКСТ",
+    degWhatLabel:"Што шакалізаваць", degBgLabel:"Фон", degTextLabel:"Тэкст",
+    degMergeLabel:"Сплавіць фон і тэкст (брудны эфект)",
+    partsBg:"фон", partsText:"тэкст", partsBoth:"фон + тэкст", partsMerged:"усё разам",
+    memeLevelLabel:"Ступень шакалізацыі:", memeGoBtn:"ЗГЕНЕРАВАЦЬ",
+    memeHint:"Захоўвай правай кнопкай → «Захаваць малюнак як…» (PNG захавае празрыстасць)",
+    memeBadgeNone:"без дадатковай шакалізацыі", imgBadgeNone:"без шакалізацыі",
+    footer:"зроблена не па шаблоне, а з душой шакала",
+    alertNoImg:"спачатку загрузі малюнак, шакал", alertNoBgUpload:"загрузі малюнак для фону",
+    alertNoFromTab:"спачатку зашакаль малюнак на ўкладцы «Малюнкі»", downloadBtn:"⬇ Спампаваць PNG",
+    closeAlert:"Шакала не закрыць! 🐺",
+    adTitle:"🎉 ВІНШУЕМ!!! ВЫ 1 000 000-Ы НАВЕДВАЛЬНІК ШАКАЛІЗАТАРА!!! 🎉",
+    adSub:"Прыза не будзе — проста заданаць аўтару, калі спадабалася!",
+    adBtnText:"☕ ЗАДАНАЦІЦЬ", adNotNow:"Можа, потым...",
+    menuFile:"Файл", menuEdit:"Праўка", menuView:"Выгляд", menuHelp:"Даведка" },
+  uk: { title:"ШАКАЛІЗАТОР", subtitle:"орден «за стиснення джипега» видається автоматично",
+    tabImg:"🖼 Картинки", tabMeme:"📝 Мем-текст",
+    imgUploadLabel:"Завантаж картинку", imgLevelLabel:"Ступінь стиснення за шкалою шакалів:",
+    imgGoBtn:"ШАКАЛІЗУВАТИ", imgHint:"Результат можна відразу використати як фон у вкладці «Мем-текст»",
+    levelWord:"рів.", memeBgLabel:"Фон", bgTransparent:"Прозорий", bgColor:"Колір", bgUpload:"Своя картинка",
+    bgFromTab:"Результат із вкладки «Картинки»", fromTabHint:"Спочатку зашакаль щось у вкладці «Картинки»",
+    topTextLabel:"Верхній текст", topTextPh:"ВЕРХНІЙ ТЕКСТ", bottomTextLabel:"Нижній текст", bottomTextPh:"НИЖНІЙ ТЕКСТ",
+    degWhatLabel:"Що шакалізувати", degBgLabel:"Фон", degTextLabel:"Текст",
+    degMergeLabel:"Сплавити фон і текст (брудний ефект)",
+    partsBg:"фон", partsText:"текст", partsBoth:"фон + текст", partsMerged:"усе разом",
+    memeLevelLabel:"Ступінь шакалізації:", memeGoBtn:"ЗГЕНЕРУВАТИ",
+    memeHint:"Зберігай правою кнопкою → «Зберегти зображення як…» (PNG збереже прозорість)",
+    memeBadgeNone:"без додаткової шакалізації", imgBadgeNone:"без шакалізації",
+    footer:"зроблено не за шаблоном, а з душею шакала",
+    alertNoImg:"спочатку завантаж картинку, шакал", alertNoBgUpload:"завантаж картинку для фону",
+    alertNoFromTab:"спочатку зашакаль картинку у вкладці «Картинки»", downloadBtn:"⬇ Завантажити PNG",
+    closeAlert:"Шакала не закрити! 🐺",
+    adTitle:"🎉 ВІТАЄМО!!! ВИ 1 000 000-Й ВІДВІДУВАЧ ШАКАЛІЗАТОРА!!! 🎉",
+    adSub:"Жодного призу не буде — просто задонать автору, якщо сподобалось!",
+    adBtnText:"☕ ЗАДОНАТИТИ", adNotNow:"Може, потім...",
+    menuFile:"Файл", menuEdit:"Правка", menuView:"Вигляд", menuHelp:"Довідка" },
+  pl: { title:"SZAKALIZATOR", subtitle:"order „za skompresowanie jpega” przyznawany automatycznie",
+    tabImg:"🖼 Obrazki", tabMeme:"📝 Mem-tekst",
+    imgUploadLabel:"Wgraj obrazek", imgLevelLabel:"Poziom kompresji w skali jebanych szakali:",
+    imgGoBtn:"SZAKALIZUJ", imgHint:"Wynik można od razu użyć jako tło w zakładce „Mem-tekst”",
+    levelWord:"poz.", memeBgLabel:"Tło", bgTransparent:"Przezroczyste", bgColor:"Kolor", bgUpload:"Własny obrazek",
+    bgFromTab:"Wynik z zakładki „Obrazki”", fromTabHint:"Najpierw zaszakaluj coś w zakładce „Obrazki”",
+    topTextLabel:"Górny tekst", topTextPh:"GÓRNY TEKST", bottomTextLabel:"Dolny tekst", bottomTextPh:"DOLNY TEKST",
+    degWhatLabel:"Co szakalizować", degBgLabel:"Tło", degTextLabel:"Tekst",
+    degMergeLabel:"Połącz tło z tekstem (brudny efekt)",
+    partsBg:"tło", partsText:"tekst", partsBoth:"tło + tekst", partsMerged:"wszystko razem",
+    memeLevelLabel:"Poziom szakalizacji:", memeGoBtn:"WYGENERUJ",
+    memeHint:"Zapisuj prawym przyciskiem → „Zapisz obraz jako…” (PNG zachowa przezroczystość)",
+    memeBadgeNone:"bez dodatkowej szakalizacji", imgBadgeNone:"bez szakalizacji",
+    footer:"zrobione nie z szablonu, a z duszą szakala",
+    alertNoImg:"najpierw wgraj obrazek, szakalu", alertNoBgUpload:"wgraj obrazek jako tło",
+    alertNoFromTab:"najpierw zaszakaluj obrazek w zakładce „Obrazki”", downloadBtn:"⬇ Pobierz PNG",
+    closeAlert:"Szakala nie da się zamknąć! 🐺",
+    adTitle:"🎉 GRATULACJE!!! JESTEŚ 1 000 000-YM GOŚCIEM SZAKALIZATORA!!! 🎉",
+    adSub:"Bez nagrody — po prostu wesprzyj autora, jeśli ci się podobało!",
+    adBtnText:"☕ WESPRZYJ", adNotNow:"Może później...",
+    menuFile:"Plik", menuEdit:"Edycja", menuView:"Widok", menuHelp:"Pomoc" },
+  en: { title:"JACKALIZER", subtitle:"the “for jpeg compression” order is awarded automatically",
+    tabImg:"🖼 Images", tabMeme:"📝 Meme text",
+    imgUploadLabel:"Upload an image", imgLevelLabel:"Compression level on the damn jackal scale:",
+    imgGoBtn:"JACKALIZE", imgHint:"You can use this result as background in the “Meme text” tab",
+    levelWord:"lvl", memeBgLabel:"Background", bgTransparent:"Transparent", bgColor:"Color", bgUpload:"Custom image",
+    bgFromTab:"Result from “Images” tab", fromTabHint:"First jackalize something in the “Images” tab",
+    topTextLabel:"Top text", topTextPh:"TOP TEXT", bottomTextLabel:"Bottom text", bottomTextPh:"BOTTOM TEXT",
+    degWhatLabel:"What to jackalize", degBgLabel:"Background", degTextLabel:"Text",
+    degMergeLabel:"Merge background & text (messy effect)",
+    partsBg:"background", partsText:"text", partsBoth:"background + text", partsMerged:"everything merged",
+    memeLevelLabel:"Jackalization level:", memeGoBtn:"GENERATE",
+    memeHint:"Save via right click → “Save image as…” (PNG keeps transparency)",
+    memeBadgeNone:"no extra jackalization", imgBadgeNone:"no jackalization",
+    footer:"made not from a template, but with jackal soul",
+    alertNoImg:"upload an image first, jackal", alertNoBgUpload:"upload an image for the background",
+    alertNoFromTab:"first jackalize an image in the “Images” tab", downloadBtn:"⬇ Download PNG",
+    closeAlert:"You can't close the jackal! 🐺",
+    adTitle:"🎉 CONGRATULATIONS!!! YOU ARE VISITOR #1,000,000 OF THE JACKALIZER!!! 🎉",
+    adSub:"No prize here — just support the author if you liked it!",
+    adBtnText:"☕ DONATE", adNotNow:"Maybe later...",
+    menuFile:"File", menuEdit:"Edit", menuView:"View", menuHelp:"Help" }
+};
+let currentLang = 'ru';
+
+function applyLang(lang){
+  currentLang = lang;
+  const dict = translations[lang];
+  document.querySelectorAll('[data-i18n]').forEach(el=>{
+    const key = el.getAttribute('data-i18n');
+    if(dict[key]!==undefined) el.textContent = dict[key];
+  });
+  document.querySelectorAll('[data-i18n-ph]').forEach(el=>{
+    const key = el.getAttribute('data-i18n-ph');
+    if(dict[key]!==undefined) el.placeholder = dict[key];
+  });
+  document.querySelectorAll('.langbtn').forEach(b=> b.classList.toggle('active', b.dataset.lang===lang));
+  document.documentElement.lang = lang;
+}
+document.querySelectorAll('.langbtn').forEach(b=> b.onclick = ()=> applyLang(b.dataset.lang));
+
+// автоопределение языка по браузеру пользователя, с откатом на русский, если совпадений нет
+function detectLang(){
+  const candidates = navigator.languages && navigator.languages.length ? navigator.languages : [navigator.language || 'ru'];
+  for(const l of candidates){
+    const code = l.toLowerCase().slice(0,2);
+    if(translations[code]) return code;
+  }
+  return 'ru';
+}
+applyLang(detectLang());
+
+document.getElementById('closeBtn').onclick = ()=> alert(translations[currentLang].closeAlert);
+
+function showAd(){ document.getElementById('adOverlay').classList.add('show'); }
+function hideAd(){ document.getElementById('adOverlay').classList.remove('show'); }
+document.getElementById('minBtn').onclick = showAd;
+document.getElementById('maxBtn').onclick = showAd;
+document.getElementById('adNotNow').onclick = hideAd;
+document.getElementById('adTinyClose').onclick = hideAd;
+document.getElementById('adOverlay').onclick = (e)=>{ if(e.target.id==='adOverlay') hideAd(); };
+setTimeout(showAd, 7000); // классика жанра — сама вылезает через пару секунд
+
+document.querySelectorAll('.tab').forEach(t=>{
+  t.onclick = ()=>{
+    document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+    document.querySelectorAll('.panel').forEach(x=>x.classList.remove('active'));
+    t.classList.add('active');
+    document.getElementById('panel-'+t.dataset.tab).classList.add('active');
+  };
+});
+
+function popAnim(el){
+  el.classList.remove('popIn');
+  void el.offsetWidth;
+  el.classList.add('popIn');
+}
+
+function loadImgAsync(src){
+  return new Promise(res=>{ const im = new Image(); im.onload = ()=>res(im); im.src = src; });
+}
+
+async function degradeCanvas(canvas, level){
+  const ctx = canvas.getContext('2d');
+  const W = canvas.width, H = canvas.height;
+  if(level <= 0) return;
+  // webp always: gives the same blocky jpeg-style artifacts but never flattens transparency,
+  // so it's safe for both plain photos and images/text-layers with alpha
+  const mime = 'image/webp';
+  const pixScale = Math.max(0.04, 1 - level*0.075);
+  const tmp = document.createElement('canvas');
+  tmp.width = Math.max(1, Math.round(W*pixScale));
+  tmp.height = Math.max(1, Math.round(H*pixScale));
+  tmp.getContext('2d').drawImage(canvas, 0,0, tmp.width, tmp.height);
+  ctx.imageSmoothingEnabled = false;
+  ctx.filter = `saturate(${1 + level*0.15}) contrast(${1 + level*0.05})`;
+  ctx.clearRect(0,0,W,H);
+  ctx.drawImage(tmp, 0,0, W, H);
+  ctx.filter = 'none';
+  let quality = Math.max(0.03, 0.9 - level*0.08);
+  let current = canvas.toDataURL(mime, quality);
+  const rounds = Math.min(level, 8);
+  for(let i=0;i<rounds;i++){
+    const im = await loadImgAsync(current);
+    ctx.imageSmoothingEnabled = false;
+    ctx.clearRect(0,0,W,H);
+    ctx.drawImage(im, 0,0, W, H);
+    current = canvas.toDataURL(mime, quality);
+  }
+  const finalImg = await loadImgAsync(current);
+  ctx.clearRect(0,0,W,H);
+  ctx.drawImage(finalImg, 0,0, W, H);
+}
+
+// ---- downloads: claude.ai native save when available, otherwise browser download ----
+let downloadsNS = null;
+(async ()=>{
+  if(!window.claude || typeof window.claude.use !== 'function') return;
+  try{ downloadsNS = await window.claude.use('downloads'); }
+  catch(e){ downloadsNS = null; }
+})();
+
+function browserDownload(blob, filename){
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(()=> URL.revokeObjectURL(url), 2000);
+}
+
+async function saveCanvas(canvas, filename){
+  canvas.toBlob(async (blob)=>{
+    if(!blob) return;
+    if(downloadsNS){
+      try{ await downloadsNS.save({ filename, data: blob }); return; }
+      catch(err){ /* fall through */ }
+    }
+    browserDownload(blob, filename);
+  }, 'image/png');
+}
+
+const levelEl = document.getElementById('level');
+document.getElementById('lvlLabel').textContent = levelEl.value;
+levelEl.oninput = ()=> document.getElementById('lvlLabel').textContent = levelEl.value;
+
+let loadedImg = null;
+let lastShakaledImg = null;
+
+document.getElementById('fileInput').onchange = (e)=>{
+  const file = e.target.files[0];
+  if(!file) return;
+  const img = new Image();
+  img.onload = ()=>{ loadedImg = img; };
+  img.src = URL.createObjectURL(file);
+};
+
+document.getElementById('goImg').onclick = async ()=>{
+  if(!loadedImg){ alert(translations[currentLang].alertNoImg); return; }
+  const btn = document.getElementById('goImg');
+  btn.classList.add('loading');
+  try{
+    const level = parseInt(levelEl.value,10);
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    const maxW = 680;
+    const scaleFit = Math.min(1, maxW / loadedImg.width);
+    const W = Math.round(loadedImg.width * scaleFit);
+    const H = Math.round(loadedImg.height * scaleFit);
+    canvas.width = W; canvas.height = H;
+    ctx.drawImage(loadedImg, 0,0, W, H);
+    await degradeCanvas(canvas, level);
+    popAnim(canvas);
+    const badge = document.getElementById('badge');
+    badge.textContent = level>0
+      ? ('🐺'.repeat(level) + '  ' + translations[currentLang].levelWord + ' ' + level)
+      : translations[currentLang].imgBadgeNone;
+    popAnim(badge);
+    lastShakaledImg = await loadImgAsync(canvas.toDataURL('image/png'));
+    if(document.querySelector('input[name="bgsrc"]:checked')?.value === 'fromtab'){
+      document.getElementById('fromTabHint').style.display = 'none';
+    }
+  } finally { btn.classList.remove('loading'); }
+};
+document.getElementById('downloadImg').onclick = ()=> saveCanvas(document.getElementById('canvas'), 'shakal.png');
+
+const levelMemeEl = document.getElementById('levelMeme');
+document.getElementById('lvlLabelMeme').textContent = levelMemeEl.value;
+levelMemeEl.oninput = ()=> document.getElementById('lvlLabelMeme').textContent = levelMemeEl.value;
+
+let memeUploadImg = null;
+document.getElementById('memeFile').onchange = (e)=>{
+  const file = e.target.files[0];
+  if(!file){ memeUploadImg = null; return; }
+  const img = new Image();
+  img.onload = ()=>{ memeUploadImg = img; };
+  img.src = URL.createObjectURL(file);
+};
+
+function updateMergeVisibility(){
+  const both = document.getElementById('degBg').checked && document.getElementById('degText').checked;
+  document.getElementById('mergeWrap').style.display = both ? 'flex' : 'none';
+  if(!both) document.getElementById('degMerge').checked = false;
+}
+document.getElementById('degBg').onchange = updateMergeVisibility;
+document.getElementById('degText').onchange = updateMergeVisibility;
+
+document.querySelectorAll('input[name="bgsrc"]').forEach(r=>{
+  r.onchange = ()=>{
+    const v = document.querySelector('input[name="bgsrc"]:checked').value;
+    document.getElementById('bgColorInput').style.display = (v==='color') ? 'inline-block' : 'none';
+    document.getElementById('memeFile').style.display = (v==='upload') ? 'block' : 'none';
+    document.getElementById('fromTabHint').style.display = (v==='fromtab' && !lastShakaledImg) ? 'block' : 'none';
+  };
+});
+
+function wrapText(ctx, text, maxWidth){
+  const words = text.split(' ');
+  let lines = [], line = '';
+  for(const w of words){
+    const test = line ? line+' '+w : w;
+    if(ctx.measureText(test).width > maxWidth && line){ lines.push(line); line = w; }
+    else { line = test; }
+  }
+  if(line) lines.push(line);
+  return lines;
+}
+
+function fitFontSize(ctx, text, maxWidth, size){
+  if(!text) return size;
+  let s = size;
+  ctx.font = `bold ${s}px Impact, 'Arial Black', sans-serif`;
+  const words = text.toUpperCase().split(' ');
+  const longest = words.reduce((a,b)=> ctx.measureText(a).width > ctx.measureText(b).width ? a : b, '');
+  while(s > 10 && ctx.measureText(longest).width > maxWidth){
+    s -= 2;
+    ctx.font = `bold ${s}px Impact, 'Arial Black', sans-serif`;
+  }
+  return s;
+}
+
+function drawMemeCaption(ctx, text, W, fontSize, yStart, direction){
+  ctx.font = `bold ${fontSize}px Impact, 'Arial Black', sans-serif`;
+  ctx.textAlign = 'center';
+  ctx.lineJoin = 'round';
+  ctx.miterLimit = 2;
+  const maxWidth = W * 0.9;
+  let lines = wrapText(ctx, text.toUpperCase(), maxWidth);
+  const lineHeight = fontSize * 1.1;
+  ctx.strokeStyle = '#000';
+  ctx.lineWidth = fontSize / 10;
+  ctx.fillStyle = '#fff';
+  if(direction === 1){
+    lines.forEach((ln,i)=>{ const y = yStart + i*lineHeight; ctx.strokeText(ln, W/2, y); ctx.fillText(ln, W/2, y); });
+  } else {
+    const total = lines.length;
+    lines.forEach((ln,i)=>{ const y = yStart - (total-1-i)*lineHeight; ctx.strokeText(ln, W/2, y); ctx.fillText(ln, W/2, y); });
+  }
+}
+
+document.getElementById('goMeme').onclick = async ()=>{
+  const bgsrc = document.querySelector('input[name="bgsrc"]:checked').value;
+  let bgImage = null;
+  if(bgsrc === 'upload'){
+    if(!memeUploadImg){ alert(translations[currentLang].alertNoBgUpload); return; }
+    bgImage = memeUploadImg;
+  } else if(bgsrc === 'fromtab'){
+    if(!lastShakaledImg){ alert(translations[currentLang].alertNoFromTab); return; }
+    bgImage = lastShakaledImg;
+  }
+
+  const btn = document.getElementById('goMeme');
+  btn.classList.add('loading');
+  try{
+    const canvas = document.getElementById('memeCanvas');
+    const ctx = canvas.getContext('2d');
+    const W = 600;
+    const rawH = bgImage ? Math.round(600 * bgImage.height/bgImage.width) : 450;
+    const H = Math.min(900, Math.max(300, rawH));
+    canvas.width = W; canvas.height = H;
+    ctx.clearRect(0,0,W,H);
+
+    if(bgsrc === 'color'){
+      ctx.fillStyle = document.getElementById('bgColorInput').value;
+      ctx.fillRect(0,0,W,H);
+    } else if(bgImage){
+      ctx.drawImage(bgImage, 0,0, W, H);
+    }
+    // transparent — оставляем как есть, ничего не заливаем
+
+    const wantBg = document.getElementById('degBg').checked;
+    const wantText = document.getElementById('degText').checked;
+    const wantMerge = wantBg && wantText && document.getElementById('degMerge').checked;
+    const level = parseInt(levelMemeEl.value,10);
+    const isTransparentBg = (bgsrc === 'transparent');
+
+    const top = document.getElementById('topText').value.trim();
+    const bottom = document.getElementById('bottomText').value.trim();
+    const maxWidth = W * 0.9;
+    const baseSize = Math.round(W/10);
+    const topSize = fitFontSize(ctx, top, maxWidth, baseSize);
+    const bottomSize = fitFontSize(ctx, bottom, maxWidth, baseSize);
+
+    function paintCaptions(targetCtx){
+      if(top) drawMemeCaption(targetCtx, top, W, topSize, topSize*1.1, 1);
+      if(bottom) drawMemeCaption(targetCtx, bottom, W, bottomSize, H - bottomSize*0.5, -1);
+    }
+
+    if(wantMerge){
+      // единый проход: текст рисуется поверх фона и всё сжимается вместе — классический "грязный" эффект
+      paintCaptions(ctx);
+      if(level > 0) await degradeCanvas(canvas, level);
+    } else {
+      if(wantBg && level > 0 && !isTransparentBg){
+        await degradeCanvas(canvas, level); // фон деградирует один, текста ещё нет
+      }
+      if(top || bottom){
+        if(wantText && level > 0){
+          // текст рисуется и шакалится отдельным прозрачным слоем, потом накладывается на чистый/уже готовый фон
+          const textCanvas = document.createElement('canvas');
+          textCanvas.width = W; textCanvas.height = H;
+          const tctx = textCanvas.getContext('2d');
+          paintCaptions(tctx);
+          await degradeCanvas(textCanvas, level);
+          ctx.drawImage(textCanvas, 0, 0);
+        } else {
+          paintCaptions(ctx);
+        }
+      }
+    }
+    popAnim(canvas);
+
+    const t = translations[currentLang];
+    const badgeMeme = document.getElementById('badgeMeme');
+    if((wantBg || wantText) && level > 0){
+      let parts = wantMerge ? t.partsMerged : (wantBg && wantText ? t.partsBoth : (wantBg ? t.partsBg : t.partsText));
+      badgeMeme.textContent = '🐺'.repeat(level) + '  ' + t.levelWord + ' ' + level + ' · ' + parts;
+    } else {
+      badgeMeme.textContent = t.memeBadgeNone;
+    }
+    popAnim(badgeMeme);
+  } finally { btn.classList.remove('loading'); }
+};
+document.getElementById('downloadMeme').onclick = ()=> saveCanvas(document.getElementById('memeCanvas'), 'shakal-meme.png');
+</script>
+</body>
+</html>
